@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시간 제한 퀴즈</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        #timer {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #quiz-container {
+            width: 100%;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer">남은 시간: <span id="time">15:00</span></div>
+    <div id="quiz-container">
+        <iframe id="google-form" src="https://forms.gle/u3Hkq7VjMrVbQZMj8?embedded=true" width="100%" height="500px" frameborder="0" marginheight="0" marginwidth="0">로드 중...</iframe>
+    </div>
+
+    <script>
+        // 퀴즈 시간 설정 (분 단위)
+        const quizTime = 10;
+        let timeLeft = quizTime * 60;
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            document.getElementById('time').textContent = `${minutes}:${seconds}`;
+            
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                endQuiz();
+            } else {
+                timeLeft--;
+            }
+        }
+
+        function endQuiz() {
+            alert("시간이 종료되었습니다. 퀴즈가 자동으로 제출됩니다.");
+            // 구글 폼 제출 시도
+            const form = document.getElementById('google-form').contentWindow.document.getElementsByTagName('form')[0];
+            if (form) {
+                form.submit();
+            }
+            // 폼을 숨기거나 다른 조치를 취할 수 있습니다.
+            document.getElementById('quiz-container').style.display = 'none';
+        }
+
+        const timerInterval = setInterval(updateTimer, 1000);
+
+        // 새로 고침 방지
+        function disableRefresh(e) {
+            e = e || window.event;
+            if (e.keyCode == 116) { // F5 키 코드
+                e.preventDefault();
+                alert("새로 고침은 허용되지 않습니다.");
+            }
+        }
+
+        // 키보드 이벤트에 대한 새로 고침 방지
+        document.onkeydown = disableRefresh;
+
+        // 브라우저의 새로 고침 버튼에 대한 방지
+        window.onbeforeunload = function() {
+            return "퀴즈를 종료하시겠습니까? 저장되지 않은 답변은 사라집니다.";
+        };
+
+        // 뒤로 가기 방지
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
+</body>
+</html>
